@@ -36,7 +36,7 @@
 
 void selectMonsters() {
     // MOVE SPRITES OFF SCREEN
-    //int i;
+    int i;
     int row = 3; 
     int cursor_loc;
     SHOW_SPRITES;
@@ -53,7 +53,7 @@ void selectMonsters() {
     cursor_loc = (row+1)*10; 
 
 
-    for (int i = 0; i < MAX_MONSTERS-10; i++) {
+    for (i = 0; i < MAX_MONSTERS-10; i++) {
         set_sprite_data(18+i, 8, Cursors); 
         set_sprite_tile(18+i,0);
         
