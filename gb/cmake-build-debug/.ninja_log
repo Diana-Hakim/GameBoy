@@ -1,0 +1,15 @@
+# ninja log v5
+1	99	6971462776242115	CMakeFiles/gb.dir/helloworld/Background/Battle/battle_map.c.obj	b41b91db752b3085
+8	113	6971462776323051	CMakeFiles/gb.dir/helloworld/Background/Room_Bottom/room_bottom_data.c.obj	20275ca5a585e49b
+101	171	6971462776990737	CMakeFiles/gb.dir/helloworld/Background/SplashScreen/splashscreen_data.c.obj	4b2044df2627a458
+5	105	6971462776112551	CMakeFiles/gb.dir/helloworld/Background/Battle/battle_data.c.obj	fc1c7ede7d80895c
+15	119	6971462776323051	CMakeFiles/gb.dir/helloworld/Background/Room_Top/room_top_data.c.obj	2e08ac361f526b15
+22	123	6971462776452970	CMakeFiles/gb.dir/helloworld/Background/Room_Top/room_top_map.c.obj	6d2b28ac7b1124f0
+11	124	6971462776353302	CMakeFiles/gb.dir/helloworld/Background/Room_Bottom/room_bottom_map.c.obj	192169c0fe73e107
+105	168	6971462776963516	CMakeFiles/gb.dir/helloworld/Background/SplashScreen/splashscreen_map.c.obj	8edb9424cea502e
+120	176	6971462777044043	CMakeFiles/gb.dir/helloworld/Sprite/Character/SmilerSprites.c.obj	541741ffe17aa97e
+5	80	6971818276748748	CMakeFiles/gb.dir/helloworld/Background/Room_Top/room_top_map.c.obj	6d2b28ac7b1124f0
+1	86	6971818276869387	CMakeFiles/gb.dir/helloworld/Background/Room_Bottom/room_bottom_map.c.obj	192169c0fe73e107
+21	108	6971818277129741	CMakeFiles/gb.dir/helloworld/battle/moves.c.obj	9cc6ce87c5f06136
+11	111	6971818277163633	CMakeFiles/gb.dir/helloworld/battle/battle.c.obj	8689df566654dd1a
+25	118	6971818277231686	CMakeFiles/gb.dir/helloworld/battle/monsters.c.obj	42a5402a0734f8e4
