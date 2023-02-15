@@ -37,6 +37,7 @@
 void selectMonsters() {
     // MOVE SPRITES OFF SCREEN
     int i;
+    //xxfas
     int row = 3; 
     int cursor_loc;
     SHOW_SPRITES;
