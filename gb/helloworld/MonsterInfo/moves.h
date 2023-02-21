@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-#define MAX_MOVES 30
+#define MAX_MOVES 22
 
 enum ElementalMoveIndex {
 FIREBALL,
@@ -32,10 +32,7 @@ MOONBLAST
 
 
 
-
-
-
-const typedef struct {
+typedef struct {
     enum ElementalMoveIndex moveName;
     char name[20];
     ElementalType type;

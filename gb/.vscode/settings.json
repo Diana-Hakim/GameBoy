@@ -7,7 +7,8 @@
         "roominfo.h": "c",
         "monsterselect.h": "c",
         "monsters.h": "c",
-        "console.h": "c"
+        "console.h": "c",
+        "moves.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

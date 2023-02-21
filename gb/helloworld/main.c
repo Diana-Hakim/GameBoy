@@ -5,48 +5,16 @@
 
 //#include <gb/font.h>
 
-
-#include "SplashPage/SplashPage.c"
-#include "Assests/Sound/Effects/Effects.c"
-#include "Assests/Design/Sprite/Character/Player/SmilerSprites.c"
-#include "Assests/Design/Sprite/Character/Player/Female/Female_Player.c"
-#include "Assests/Design/Background/Rooms/RoomInfo.h"
-#include "Assests/Design/Sprite/GameCharacter.c"
-
-#include "SplashPage/SplashPage.h"
-
-#include "MonsterSelect/monsterSelect.c"
-
-//#include "MonsterSelect/monsterSelect.h"
-
-
+void setUpEniroment();
+void performantdelay(UINT8);
+void clearScreen();
 
 #define FRACTIONAL_BITS 8
-#define ONE (1 << FRACTIONAL_BITS) /// FOR PRINTING
+#define ONE (1 << FRACTIONAL_BITS)
 
+#include "SplashPage/SplashPage.c"
+#include "Navigation/navigation.c"
 
-
-//struct GameCharacter player;
-struct Player player;
-struct CPU cpu;
-
-void setUpEniroment();
-UBYTE moveInput();
-UBYTE canplayermove(UINT8 newplayerx1, UINT8 newplayery1, UINT8 newplayerx2, UINT8 newplayery2);
-UINT16 convertTileIndex(UINT8 newplayerx, UINT8 newplayery);
-void Navigation();
-UBYTE onDoor(UINT8 Py);
-void NavgateCurrentRoom();
-void setUpPlayer();
-void changeCPU();
-void updategamecharacter(struct GameCharacter* character);
-void movegamecharacter(struct GameCharacter* character, UINT8 x, UINT8 y);
-UBYTE isCPUCollisionDetected(UINT8 newplayerx, UINT8 newplayery);
-UBYTE isLookingAtCPU();
-
-UINT8 roomType = 0; // Type of Room
-UINT8 currentRoom = 0; // Current Room -- CPU Index
-const UINT8 movementSkip = 4;
 
 
 int main(void){
@@ -55,9 +23,9 @@ int main(void){
 
   SHOW_BKG;
   SHOW_SPRITES;
-
-  setUpPlayer();
-  Navigation();
+  setNavi();
+  //setUpPlayer();
+  //Navigation();
   return 0;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// ACTION: SET UP
@@ -68,246 +36,20 @@ void setUpEniroment(){
   NR51_REG = 0xFF; // is 1111 1111 in binary, select which chanels we want to use in this case all of them. One bit for the L one bit for the R of all four channels
 
 }
-
-void setUpPlayer() {
-  set_sprite_data(0, 8, Female_Player); 
-  player.base.x = MIDDLE_X;
-  player.base.y = MIDDLE_Y;
-  player.base.facing_direction = DOWN;
-
-  set_sprite_tile(0,0);
-  player.base.spritids[0] = 0;
-  set_sprite_tile(1,1);
-  player.base.spritids[1] = 1;
-  set_sprite_tile(2,2);
-  player.base.spritids[2] = 2;
-  set_sprite_tile(3,3);
-  player.base.spritids[3] = 3;
-}
-
-void displayRoom(){
-    set_bkg_data(0,rooms[roomType].numberOfTiles, rooms[roomType].roomdata); 
-  set_bkg_tiles(0,0,20,18,rooms[roomType].roommap);
-}
-
-void NavgateCurrentRoom(){
-  changeCPU(); // CHANGE CPU SPRITE and Location
-  displayRoom();
-  movegamecharacter(&player, player.base.x,player.base.y);
-  fadein(5);
-  moveInput();
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////ACTION: USER INPUT
-
-UBYTE moveInput(){
-    while(1){ 
-      UBYTE results = 0;
-      //UINT8 modif;
-        switch(joypad()){
-            case J_LEFT: 
-              if (player.base.facing_direction == LEFT && canplayermove(player.base.x-movementSkip*2,player.base.y, player.base.x-movementSkip,player.base.y)) { // CHECK FOR WALLS, CPUS, OR DOORS
-                  movegamecharacter(&player.base, player.base.x-movementSkip,player.base.y);
-              }
-              /// TODO:  SPRITE DIRECTIONAL CHANGE
-              player.base.facing_direction = LEFT;
-                break;
-            case J_RIGHT: 
-              if ((player.base.facing_direction == RIGHT) && canplayermove(player.base.x+movementSkip*2+(spritesize*2),player.base.y, player.base.x+movementSkip,player.base.y)) {
-                movegamecharacter(&player.base, player.base.x+movementSkip,player.base.y);
-              }
-              /// TODO:  SPRITE DIRECTIONAL CHANGE
-                player.base.facing_direction = RIGHT;
-                break;  
-            case J_UP: 
-                if ((player.base.facing_direction == UP) && canplayermove(player.base.x,player.base.y-movementSkip*2, player.base.x,player.base.y-movementSkip)) { 
-                  movegamecharacter(&player.base, player.base.x,player.base.y-movementSkip);
-                  } 
-                  results = onDoor(player.base.y-movementSkip);
-                  /// TODO:  SPRITE DIRECTIONAL CHANGE
-                player.base.facing_direction = UP;
-                break; 
-            case J_DOWN: 
-                if ((player.base.facing_direction == DOWN) && canplayermove(player.base.x,player.base.y+movementSkip, player.base.x,player.base.y+movementSkip)) { 
-                  movegamecharacter(&player.base, player.base.x,player.base.y+movementSkip);
-                  }
-                  results = onDoor(player.base.y+movementSkip);
-                  player.base.facing_direction = DOWN;
-                  /// TODO:  SPRITE DIRECTIONAL CHANGE
-                break;
-            case J_A:
-            if (isLookingAtCPU()){
-                printf("Hello, I'M CPU: %d\n", currentRoom - ((currentRoom / ONE) * ONE));
-                printf(cpu.dialog);
-                waitpad(J_A);
-                HIDE_SPRITES;
-                if (!cpu.isBattleCPU){
-                  selectMonsters();
-                  SHOW_SPRITES;
-                  displayRoom();
-                }
-            }
-              break;  
+void clearScreen() {
+    UINT8 i, j;
+    for (i = 0; i < 18; i++) {
+        for (j = 0; j < 20; j++) {
+            gotoxy(j, i);
+            printf("%c", 0x00);
         }
-        if (results){
-          break;
-        }
-        performantdelay(6); 
-        
     }
-}
-///////////////////////////////////////////////////////////////ACTION: DO CPU'S BATTLE / SELECT SEQ
-
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////IF: CHANGE ROOMS -- ON DOOR?
-
-UBYTE onDoor(UINT8 Py){
-    UINT16 tile = convertTileIndex(player.base.x, Py);
-    UINT16 tile2 = convertTileIndex(player.base.x+(spritesize*2), Py);
-
-    UBYTE result = (
-      (rooms[roomType].roommap[tile]     == rooms[roomType].doors[0]) 
-      ||(rooms[roomType].roommap[tile]   == rooms[roomType].doors[1]) 
-      || (rooms[roomType].roommap[tile2] == rooms[roomType].doors[0]) 
-      ||(rooms[roomType].roommap[tile2]  == rooms[roomType].doors[1]) 
-      );
-
-    if (result){
-    playDoorSound();
-    delay(300); // delay for the sound to play
-      } 
-      
-
-  return (result);
+    gotoxy(0, 0);
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// ACTION: TO CHANGE ROOMS --
-
-void Navigation(){
-  UINT8 Y_Location;
-  while (1) {
-    NavgateCurrentRoom(); //navigate current room (TYPES - 0-2 and index)
-    switch (roomType) {
-      case 0:
-        Y_Location = MAP_BOTTOM;
-        roomType = 1; // player left room so these values are updated
-        currentRoom = 1;
-        break;
-      case 1:
-        Y_Location = (player.base.tileLocation > 80 ? MAP_TOP : MAP_BOTTOM); /// IF PLAYER IS CLOSER TO TOP THEN MAP_BOTTOM ELSE MAP_TOP
-        currentRoom += Y_Location == MAP_BOTTOM ? 1 : -1; /// MAP_BOTTOM THEN +1 ELSE -1
-        roomType = (currentRoom == MAX_CPU-1) ? (roomType + 1) : ((currentRoom == 0) ? (roomType - 1) : roomType); //
-        break;
-      case 2: 
-        Y_Location = MAP_TOP;       
-        roomType--;
-        currentRoom--; 
-        break;
-    }
-    movegamecharacter(&player.base, MIDDLE_X, Y_Location);
-    performantdelay(5);
-  }
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// IF: SPRITE SHOULD BE MOVED -- COLLISION
-
-UBYTE isWallCollisionDetected(UINT8 newplayerx, UINT8 newplayery){
-    if (rooms[roomType].roommap[convertTileIndex(newplayerx, newplayery)] == wall[0]){
-      return 1;
-    }
-    return 0;
-    //return roommap[roomType][convertTileIndex(newplayerx, newplayery)] != wall[0];
-}
-/////// TODO: FIX IT 
-UBYTE canplayermove(UINT8 newplayerx1, UINT8 newplayery1, UINT8 newplayerx2, UINT8 newplayery2){ 
-    UBYTE result;
-    result = !(isWallCollisionDetected(newplayerx1, newplayery1) || isCPUCollisionDetected(newplayerx2, newplayery2));
-
-    if (!result){
-      playCollisionSound();
-    }
-
-    return result;
-}
-
-UBYTE isCPUCollisionDetected(UINT8 newplayerx, UINT8 newplayery) {
-      return (newplayerx <= cpu.base.x + (spritesize*2)) && 
-             (newplayerx + (spritesize*2)-2 >= cpu.base.x) && 
-             (newplayery<= cpu.base.y + (spritesize*2)) && 
-             (newplayery + (spritesize*2)-2 >= cpu.base.y);
-}
-
-UBYTE isLookingAtCPU() {
-    UINT8 player_x = player.base.x;
-    UINT8 player_y = player.base.y;
-    switch (player.base.facing_direction) {
-        case UP:
-            player_y -= movementSkip;
-            break;
-        case DOWN:
-            player_y += movementSkip;
-            break;
-        case LEFT:
-            player_x -= movementSkip;
-            break;
-        case RIGHT:
-            player_x += movementSkip;
-            break;
-    }
-    return isCPUCollisionDetected(player_x, player_y);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// ACTION: TO MOVE SPRITE -- X, Y
-
-
-void movegamecharacter(struct GameCharacter* character, UINT8 charx, UINT8 chary){
-    character->x = charx;
-    character->y = chary;
-    player.base.tileLocation = convertTileIndex(player.base.x, player.base.y);
-    updategamecharacter(character);
-}
-
-void updategamecharacter(struct GameCharacter* character){
-    move_sprite(character->spritids[0], character->x, character->y);
-    move_sprite(character->spritids[1], character->x + spritesize, character->y);
-    move_sprite(character->spritids[2], character->x, character->y + spritesize);
-    move_sprite(character->spritids[3], character->x + spritesize, character->y + spritesize);
-}
-
-void copyCPU(struct CPU *dest, struct CPU *src) {
-
-    memcpy(dest, src, sizeof(struct CPU));
-
-}
-
-void changeCPU(){  
-
-    copyCPU(&cpu, &CPU_info.characters[currentRoom]);
-
-    cpu.base.tileLocation = convertTileIndex(cpu.base.x, cpu.base.y);
-
-  // "CHANGE CHARACTER" NOT REALLY JUST THE SPITE LOOK
-    set_sprite_tile(4, 4);
-    cpu.base.spritids[0] = 4;
-    set_sprite_tile(5, 5);
-    cpu.base.spritids[1] = 5;
-    set_sprite_tile(6, 6);
-    cpu.base.spritids[2] = 6;
-    set_sprite_tile(7, 7);
-    cpu.base.spritids[3] = 7;
-
-    updategamecharacter(&cpu.base);
-}
-
-
-UINT16 convertTileIndex(UINT8 newplayerx, UINT8 newplayery) {
-    UINT16 indexTLxl = (newplayerx - 8) / 8;
-    UINT16 indexTLyl = (newplayery - 16) / 8;
-    return 20 * indexTLyl + indexTLxl;
+void performantdelay(UINT8 numloops){
+    UINT8 i;
+    for(i = 0; i < numloops; i++){
+        wait_vbl_done();
+    }     
 }
