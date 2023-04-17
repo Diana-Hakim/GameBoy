@@ -1,0 +1,19 @@
+{
+    "files.associations": {
+        "splashscreen_data.h": "c",
+        "string.h": "c",
+        "selectscreen_map.h": "c",
+        "selectscreen_data.h": "c",
+        "room1_data.h": "c",
+        "splashscreen_map.h": "c",
+        "room2_data.h": "c",
+        "bank.h": "c",
+        "font.h": "c",
+        "constants.h": "c",
+        "gamecharacters.h": "c",
+        "types.h": "c",
+        "battlescreen_data.h": "c",
+        "charactersprites_data.h": "c",
+        "common.h": "c"
+    }
+}
